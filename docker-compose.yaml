@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: ./wait-for-postgres.sh db /app/wbl0
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    env_file:
+      - ./.env
+      - ./.env.db
+    depends_on:
+      - db
+      - nats-server
+    container_name: api
+    restart: unless-stopped
+
+  nginx:
+    image: nginx
+    ports:
+      - 3000:80
+    volumes:
+      - ./nginx:/usr/share/nginx/html
+
+  db:
+    image: postgres:16.0
+    container_name: db
+    volumes:
+       - db:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.db
+    ports:
+      - "5432:5432"
+    restart: always
+
+  nats-server:
+    image: nats-streaming:0.25.6
+    command: [ "-p", "4222" ]
+    ports:
+      - 4222:4222
+      - 8222:8222
+
+volumes:
+  db:

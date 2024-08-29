@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>L0</title>
+</head>
+<body>
+<h4>Please enter UID of order:</h4>
+<input placeholder="uid" id="uid" />
+<button onclick="handle()">Find</button>
+
+<div>
+    <pre id="order"></pre>
+</div>
+
+<script>
+    function handle() {
+
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            let json = JSON.parse(this.responseText)
+            //document.getElementById("order").innerHTML = json.result;
+
+            if(json.result === "success") {
+                json = JSON.parse(json.data)
+                document.getElementById("order").innerHTML = JSON.stringify(json, undefined, 4)
+                    .replace(/\n( *)/g, function (match, p1) {
+                            return '<br>' + '&nbsp;'.repeat(p1.length);
+                        }
+                    );
+            } else {
+                document.getElementById("order").innerHTML = "Noto found";
+            }
+        }
+        xhttp.open("GET", "http://localhost:8080/"+document.getElementById('uid').value);
+        xhttp.send();
+    }
+
+</script>
+
+</body>
+</html>
